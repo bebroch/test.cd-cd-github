@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "star": "node src/index.js"
+    "star": "node src/index.js",
+    "build": "pkg src/index.js --target node*-win-x64 --output dist/app.exe"
   },
   "keywords": [],
   "author": "",
