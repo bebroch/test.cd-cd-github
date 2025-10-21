@@ -1,35 +1,40 @@
-
-name: Node.js Package
+name: Build and Release
 
 on:
   push:
     branches: [ main ]
-  release:
-    types: [created]
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Получить всю историю коммитов для авто-версионирования
 
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '23'
+        cache: 'npm'
+
+    - name: Workd
+      run: npm ci
+
+    - name: Install pkg globally
+      run: npm install -g pkg
+
+    - name: Build executable
+      run: npm run build
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release 
+        files: dist/app.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
